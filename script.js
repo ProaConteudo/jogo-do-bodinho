@@ -4,24 +4,24 @@ const rankingList = document.getElementById('rankingList');
 
 // Carregar imagens
 const bodinhoImg = new Image();
-bodinhoImg.src = 'bodinho.png'; // Certifique-se de que o nome do arquivo está correto
+bodinhoImg.src = 'bodinho.png';
 
 const bolaImg = new Image();
-bolaImg.src = 'bola.png'; // Certifique-se de que o nome do arquivo está correto
+bolaImg.src = 'bola.png';
 
 // Cores do Canal GOAT (para elementos visuais opcionais)
 const colorGOATYellow = '#FFD700';
 const colorGOATBlack = '#000000';
 
 // Bodinho
-const bodinhoWidth = 60; // Aumentei um pouco a largura para melhor visualização
-const bodinhoHeight = 50; // Aumentei um pouco a altura para melhor visualização
+const bodinhoWidth = 40; // Tamanho ajustado
+const bodinhoHeight = 30; // Tamanho ajustado
 let bodinhoX = (canvas.width - bodinhoWidth) / 2;
 const bodinhoY = canvas.height - bodinhoHeight - 10;
 const bodinhoSpeed = 5;
 
 // Bola
-const ballRadius = 15; // Aumentei um pouco o raio para melhor visualização
+const ballRadius = 10; // Tamanho ajustado
 let balls = [];
 const ballSpeedBase = 2;
 const ballSpawnInterval = 1000; // Milissegundos
@@ -32,9 +32,17 @@ let gameInterval;
 const gameDuration = 30000; // 30 segundos
 let timeLeft = gameDuration / 1000;
 let gameStarted = false;
+let playerName = '';
 
-// Ranking (simples, armazenado na sessão do navegador)
+// Ranking (simples, armazenado na sessão do navegador com nome do jogador)
 let gameHistory = JSON.parse(sessionStorage.getItem('goatRanking')) || [];
+
+function askForName() {
+    playerName = prompt("Digite seu nome de GOAT:");
+    if (!playerName) {
+        playerName = "Jogador Anônimo";
+    }
+}
 
 function drawBodinho() {
     ctx.drawImage(bodinhoImg, bodinhoX, bodinhoY, bodinhoWidth, bodinhoHeight);
@@ -80,8 +88,9 @@ function spawnBall() {
 function drawScore() {
     ctx.fillStyle = '#333';
     ctx.font = '16px sans-serif';
-    ctx.fillText(`Pontuação: ${score}`, 10, 20);
-    ctx.fillText(`Tempo: ${timeLeft.toFixed(1)}s`, 10, 40); // Formatei o tempo para uma casa decimal
+    ctx.fillText(`Jogador: ${playerName}`, 10, 20); // Exibe o nome do jogador
+    ctx.fillText(`Pontuação: ${score}`, 10, 40);
+    ctx.fillText(`Tempo: ${timeLeft.toFixed(1)}s`, 10, 60);
 }
 
 function updateGame() {
@@ -101,6 +110,7 @@ function updateGame() {
 }
 
 function startGame() {
+    askForName(); // Pede o nome do jogador ao iniciar o jogo
     score = 0;
     balls = [];
     bodinhoX = (canvas.width - bodinhoWidth) / 2;
@@ -113,8 +123,8 @@ function startGame() {
 
 function endGame() {
     gameStarted = false;
-    alert(`Fim de Jogo! Sua pontuação foi: ${score}`);
-    updateRanking(score);
+    alert(`Fim de Jogo, ${playerName}! Sua pontuação foi: ${score}`);
+    updateRanking(score, playerName); // Passa o nome para a função de ranking
     displayRanking();
 }
 
@@ -126,9 +136,9 @@ function getGOATLevel(score) {
     return "O Bode GOAT";
 }
 
-function updateRanking(currentScore) {
-    gameHistory.push(currentScore);
-    gameHistory.sort((a, b) => b - a); // Ordenar do maior para o menor
+function updateRanking(currentScore, playerName) {
+    gameHistory.push({ name: playerName, score: currentScore }); // Salva nome e pontuação
+    gameHistory.sort((a, b) => b.score - a.score); // Ordena por pontuação
     sessionStorage.setItem('goatRanking', JSON.stringify(gameHistory));
 }
 
@@ -136,7 +146,7 @@ function displayRanking() {
     rankingList.innerHTML = '';
     for (let i = 0; i < Math.min(5, gameHistory.length); i++) {
         const listItem = document.createElement('li');
-        listItem.textContent = `${i + 1}. Pontuação: ${gameHistory[i]} - Nível: ${getGOATLevel(gameHistory[i])}`;
+        listItem.textContent = `${i + 1}. ${gameHistory[i].name}: ${gameHistory[i].score} - Nível: ${getGOATLevel(gameHistory[i].score)}`;
         rankingList.appendChild(listItem);
     }
 }
