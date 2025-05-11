@@ -2,23 +2,26 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const rankingList = document.getElementById('rankingList');
 
+// Carregar imagens
+const bodinhoImg = new Image();
+bodinhoImg.src = 'bodinho.png'; // Certifique-se de que o nome do arquivo está correto
+
+const bolaImg = new Image();
+bolaImg.src = 'bola.png'; // Certifique-se de que o nome do arquivo está correto
+
 // Cores do Canal GOAT (para elementos visuais opcionais)
 const colorGOATYellow = '#FFD700';
 const colorGOATBlack = '#000000';
 
-// Cores do Bodinho
-const bodinhoColor1 = '#F5F5DC'; // Bege claro
-const bodinhoColor2 = '#FFF8DC'; // Branco claro
-
 // Bodinho
-const bodinhoWidth = 40;
-const bodinhoHeight = 30;
+const bodinhoWidth = 60; // Aumentei um pouco a largura para melhor visualização
+const bodinhoHeight = 50; // Aumentei um pouco a altura para melhor visualização
 let bodinhoX = (canvas.width - bodinhoWidth) / 2;
 const bodinhoY = canvas.height - bodinhoHeight - 10;
 const bodinhoSpeed = 5;
 
 // Bola
-const ballRadius = 10;
+const ballRadius = 15; // Aumentei um pouco o raio para melhor visualização
 let balls = [];
 const ballSpeedBase = 2;
 const ballSpawnInterval = 1000; // Milissegundos
@@ -34,19 +37,11 @@ let gameStarted = false;
 let gameHistory = JSON.parse(sessionStorage.getItem('goatRanking')) || [];
 
 function drawBodinho() {
-    ctx.fillStyle = bodinhoColor1;
-    ctx.fillRect(bodinhoX, bodinhoY + 5, bodinhoWidth, bodinhoHeight - 10); // Corpo
-    ctx.fillStyle = bodinhoColor2;
-    ctx.fillRect(bodinhoX + 10, bodinhoY, bodinhoWidth - 20, bodinhoHeight - 15); // Cabeça
-    // Podemos adicionar detalhes como olhinhos e chifres simples com outras formas e cores claras
+    ctx.drawImage(bodinhoImg, bodinhoX, bodinhoY, bodinhoWidth, bodinhoHeight);
 }
 
 function drawBall(ball) {
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = '#000'; // Cor da bola
-    ctx.fill();
-    ctx.closePath();
+    ctx.drawImage(bolaImg, ball.x - ballRadius, ball.y - ballRadius, 2 * ballRadius, 2 * ballRadius);
 }
 
 function updateBodinho() {
@@ -86,7 +81,7 @@ function drawScore() {
     ctx.fillStyle = '#333';
     ctx.font = '16px sans-serif';
     ctx.fillText(`Pontuação: ${score}`, 10, 20);
-    ctx.fillText(`Tempo: ${timeLeft}s`, 10, 40);
+    ctx.fillText(`Tempo: ${timeLeft.toFixed(1)}s`, 10, 40); // Formatei o tempo para uma casa decimal
 }
 
 function updateGame() {
@@ -111,12 +106,8 @@ function startGame() {
     bodinhoX = (canvas.width - bodinhoWidth) / 2;
     timeLeft = gameDuration / 1000;
     gameStarted = true;
-    gameInterval = setInterval(() => {
-        updateGame();
-        timeLeft = Math.max(0, gameDuration / 1000 - (Date.now() - startTime) / 1000);
-    }, 1000 / 60); // 60 FPS
-
     startTime = Date.now();
+    gameInterval = setInterval(updateGame, 1000 / 60); // 60 FPS
     setInterval(spawnBall, ballSpawnInterval);
 }
 
