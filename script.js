@@ -15,7 +15,7 @@ const colorGOATBlack = '#000000';
 
 // Bodinho
 const bodinhoWidth = 40; // Tamanho ajustado
-const bodinhoHeight = 30; // Tamanho ajustado
+const bodinhoHeight = 60; // Tamanho ajustado
 let bodinhoX = (canvas.width - bodinhoWidth) / 2;
 const bodinhoY = canvas.height - bodinhoHeight - 10;
 const bodinhoSpeed = 5;
